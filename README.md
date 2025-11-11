@@ -1,4 +1,4 @@
-025.11.11 – Mai frissítés
+025.11.11 – frissítés
 
 Backend frissítve a GitHub-on
 
