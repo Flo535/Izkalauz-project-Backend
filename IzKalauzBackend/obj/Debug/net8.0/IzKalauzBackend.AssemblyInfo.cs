@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IzKalauzBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b310ce44f12330b97357f554aa805c7ccef021d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6a80dc26e9961e8b1234a801110f65ca0b6ade5")]
 [assembly: System.Reflection.AssemblyProductAttribute("IzKalauzBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IzKalauzBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
