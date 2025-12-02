@@ -26,6 +26,12 @@ namespace IzKalauzBackend.Controllers
             public string Role { get; set; } = "User";
         }
 
+        // DTO a szerepkör frissítéséhez
+        public class UpdateRoleDto
+        {
+            public string Role { get; set; } = "User";
+        }
+
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
@@ -76,26 +82,18 @@ namespace IzKalauzBackend.Controllers
 
         // PUT: api/Users/{id}/role
         [HttpPut("{id}/role")]
-        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] string newRole)
+        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateRoleDto dto)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
-            if (newRole != "User" && newRole != "Admin")
+            if (dto.Role != "User" && dto.Role != "Admin")
                 return BadRequest("Role must be 'User' or 'Admin'.");
 
-            user.Role = newRole;
+            user.Role = dto.Role;
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        // Segédfüggvény a jelenlegi admin email lekérdezéséhez (opcionális)
-        private string? GetCurrentUserEmail()
-        {
-            return User?.Identity?.IsAuthenticated == true
-                ? User.Identity.Name
-                : null;
         }
     }
 }
