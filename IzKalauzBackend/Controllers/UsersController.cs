@@ -18,20 +18,53 @@ namespace IzKalauzBackend.Controllers
             _context = context;
         }
 
+        // DTO a felhasználói adatokhoz (jelszó nélkül)
+        public class UserDto
+        {
+            public Guid Id { get; set; }
+            public string Email { get; set; } = null!;
+            public string Role { get; set; } = "User";
+        }
+
+        // DTO a szerepkör frissítéséhez
+        public class UpdateRoleDto
+        {
+            public string Role { get; set; } = "User";
+        }
+
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            var users = await _context.Users
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Role = u.Role
+                })
+                .ToListAsync();
+
+            return Ok(users);
         }
 
         // GET: api/Users/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(Guid id)
+        public async Task<ActionResult<UserDto>> GetUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users
+                .Where(u => u.Id == id)
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Role = u.Role
+                })
+                .FirstOrDefaultAsync();
+
             if (user == null) return NotFound();
-            return user;
+
+            return Ok(user);
         }
 
         // DELETE: api/Users/{id}
@@ -47,12 +80,20 @@ namespace IzKalauzBackend.Controllers
             return NoContent();
         }
 
-        // Példa null-safe ellenőrzésre JWT-ből (ha kell)
-        private string? GetCurrentUserEmail()
+        // PUT: api/Users/{id}/role
+        [HttpPut("{id}/role")]
+        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateRoleDto dto)
         {
-            return User?.Identity?.IsAuthenticated == true
-                ? User.Identity.Name
-                : null;
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound();
+
+            if (dto.Role != "User" && dto.Role != "Admin")
+                return BadRequest("Role must be 'User' or 'Admin'.");
+
+            user.Role = dto.Role;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

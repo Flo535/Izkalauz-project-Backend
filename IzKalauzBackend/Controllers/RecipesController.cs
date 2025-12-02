@@ -37,6 +37,34 @@ namespace IzKalauzBackend.Controllers
             }
         }
 
+        // ✅ GET: /api/Recipes/my
+        [HttpGet("my")]
+        [Authorize]
+        public async Task<IActionResult> GetMyRecipes()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email); // JWT-ben lévő email
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized(new { message = "A token nem tartalmaz érvényes emailt." });
+
+            try
+            {
+                var myRecipes = await _context.Recipes
+                    .Where(r => r.AuthorEmail == email)
+                    .ToListAsync();
+
+                return Ok(myRecipes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Hiba történt a saját receptek lekérésekor.",
+                    error = ex.Message
+                });
+            }
+        }
+
+
         // ✅ POST: /api/Recipes (JWT szükséges)
         [Authorize]
         [HttpPost]
