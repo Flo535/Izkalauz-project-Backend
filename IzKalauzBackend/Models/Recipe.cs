@@ -5,6 +5,7 @@
     public string Description { get; set; } = string.Empty;
     public List<string> Ingredients { get; set; } = new();
     public string AuthorEmail { get; set; } = string.Empty;
+    public string? ImagePath { get; set; }  // <-- ide kerül a kép útvonala
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
