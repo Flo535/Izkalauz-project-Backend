@@ -1,0 +1,13 @@
+# Visual Studio ideiglenes fájlok
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Node/npm fájlok
+node_modules/
+package-lock.json
+
+# Egyéb lokális fájlok
+*.log
