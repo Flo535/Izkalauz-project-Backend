@@ -18,14 +18,32 @@ namespace IzKalauzBackend.Controllers
             _context = context;
         }
 
-        // GET: /api/Recipes
+        // =========================
+        // GET: /api/Recipes?page=1&pageSize=10
+        // ÖSSZES RECEPT (LAPOZOTT)
+        // =========================
         [HttpGet]
-        public async Task<IActionResult> GetAllRecipes()
+        public async Task<IActionResult> GetAllRecipes(
+            int page = 1,
+            int pageSize = 10)
         {
             try
             {
-                var recipes = await _context.Recipes.ToListAsync();
-                return Ok(recipes);
+                var query = _context.Recipes
+                    .OrderByDescending(r => r.CreatedAt);
+
+                var totalCount = await query.CountAsync();
+
+                var recipes = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    items = recipes,
+                    totalCount = totalCount
+                });
             }
             catch (Exception ex)
             {
@@ -37,22 +55,38 @@ namespace IzKalauzBackend.Controllers
             }
         }
 
-        // GET: /api/Recipes/my
+        // ==================================
+        // GET: /api/Recipes/my?page=1&pageSize=10
+        // SAJÁT RECEPTEK (LAPOZOTT)
+        // ==================================
         [HttpGet("my")]
         [Authorize]
-        public async Task<IActionResult> GetMyRecipes()
+        public async Task<IActionResult> GetMyRecipes(
+            int page = 1,
+            int pageSize = 10)
         {
-            var email = User.FindFirstValue(ClaimTypes.Email); // JWT-ben lévő email
+            var email = User.FindFirstValue(ClaimTypes.Email);
             if (string.IsNullOrEmpty(email))
                 return Unauthorized(new { message = "A token nem tartalmaz érvényes emailt." });
 
             try
             {
-                var myRecipes = await _context.Recipes
+                var query = _context.Recipes
                     .Where(r => r.AuthorEmail == email)
+                    .OrderByDescending(r => r.CreatedAt);
+
+                var totalCount = await query.CountAsync();
+
+                var myRecipes = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
                     .ToListAsync();
 
-                return Ok(myRecipes);
+                return Ok(new
+                {
+                    items = myRecipes,
+                    totalCount = totalCount
+                });
             }
             catch (Exception ex)
             {
@@ -64,8 +98,9 @@ namespace IzKalauzBackend.Controllers
             }
         }
 
-
-        // POST: /api/Recipes (JWT szükséges)
+        // =========================
+        // POST: /api/Recipes
+        // =========================
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateRecipe([FromBody] Recipe request)
@@ -106,7 +141,9 @@ namespace IzKalauzBackend.Controllers
             }
         }
 
+        // =========================
         // GET: /api/Recipes/{id}
+        // =========================
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetRecipe(Guid id)
         {
@@ -117,7 +154,9 @@ namespace IzKalauzBackend.Controllers
             return Ok(recipe);
         }
 
+        // =========================
         // PUT: /api/Recipes/{id}
+        // =========================
         [Authorize]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateRecipe(Guid id, [FromBody] Recipe updated)
@@ -141,7 +180,9 @@ namespace IzKalauzBackend.Controllers
             return Ok(new { message = "Recept sikeresen frissítve.", recipe });
         }
 
+        // =========================
         // DELETE: /api/Recipes/{id}
+        // =========================
         [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteRecipe(Guid id)
