@@ -1,0 +1,204 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\controllers\\shoppinglistscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\controllers\\shoppinglistscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\models\\shoppinglist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\models\\shoppinglist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\models\\shoppinglistrecipe.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\models\\shoppinglistrecipe.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260218114310_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:IzKalauzBackend\\Migrations\\20260218114310_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\dtos\\recipedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\dtos\\recipedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\dtos\\shoppinglistdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\dtos\\shoppinglistdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\models\\shoppinglistitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\models\\shoppinglistitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|c:\\users\\a13\\desktop\\izkalauzcheck\\izkalauzmixedv6.5\\izkalauz-project-backend-main\\izkalauzbackend\\dtos\\createshoppinglistdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3CD6670E-7337-40A5-9549-CD39CB1A7514}|IzKalauzBackend\\IzKalauzBackend.csproj|solutionrelative:izkalauzbackend\\dtos\\createshoppinglistdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260216124418_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:IzKalauzBackend\\Migrations\\20260216124418_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260216090849_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:IzKalauzBackend\\Migrations\\20260216090849_InitialCreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "20260218114310_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260218114310_InitialCreate.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Migrations\\20260218114310_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260218114310_InitialCreate.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Migrations\\20260218114310_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T11:43:11.039Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "RecipeDto.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\DTOs\\RecipeDto.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\DTOs\\RecipeDto.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\DTOs\\RecipeDto.cs",
+              "RelativeToolTip": "IzKalauzBackend\\DTOs\\RecipeDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T11:30:06.599Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ShoppingListRecipe.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Models\\ShoppingListRecipe.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Models\\ShoppingListRecipe.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Models\\ShoppingListRecipe.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Models\\ShoppingListRecipe.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T11:04:14.444Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "20260216124418_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260216124418_InitialCreate.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Migrations\\20260216124418_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260216124418_InitialCreate.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Migrations\\20260216124418_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T12:44:18.532Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ShoppingListsController.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Controllers\\ShoppingListsController.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Controllers\\ShoppingListsController.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Controllers\\ShoppingListsController.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Controllers\\ShoppingListsController.cs",
+              "ViewState": "AgIAAIgAAAAAAAAAAAAqwI0AAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T10:07:28.217Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ShoppingListDto.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\DTOs\\ShoppingListDto.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\DTOs\\ShoppingListDto.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\DTOs\\ShoppingListDto.cs",
+              "RelativeToolTip": "IzKalauzBackend\\DTOs\\ShoppingListDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T10:06:15.204Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CreateShoppingListDto.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\DTOs\\CreateShoppingListDto.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\DTOs\\CreateShoppingListDto.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\DTOs\\CreateShoppingListDto.cs",
+              "RelativeToolTip": "IzKalauzBackend\\DTOs\\CreateShoppingListDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T10:05:37.433Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAAHgAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T09:58:43.131Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ShoppingListItem.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Models\\ShoppingListItem.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Models\\ShoppingListItem.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Models\\ShoppingListItem.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Models\\ShoppingListItem.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAQwBgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T09:52:34.657Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ShoppingList.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Models\\ShoppingList.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Models\\ShoppingList.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Models\\ShoppingList.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Models\\ShoppingList.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAqwA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T09:43:32.556Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "20260216090849_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260216090849_InitialCreate.cs",
+              "RelativeDocumentMoniker": "IzKalauzBackend\\Migrations\\20260216090849_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\a13\\Desktop\\IzkalauzCheck\\IzkalauzMixedv6.5\\Izkalauz-project-Backend-main\\IzKalauzBackend\\Migrations\\20260216090849_InitialCreate.cs",
+              "RelativeToolTip": "IzKalauzBackend\\Migrations\\20260216090849_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T09:08:49.829Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
