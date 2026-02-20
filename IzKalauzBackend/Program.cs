@@ -79,41 +79,34 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddAutoMapper(typeof(Program).Assembly);   // AutoMapper regisztrálás
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 
 // --- Swagger ---
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-// --- Statikus fájlok (képek kiszolgálása) ---
-// FONTOS: ez legyen a HTTPS előtt!
-app.UseStaticFiles(); // automatikusan kiszolgálja a wwwroot mappát
+// --- Statikus fájlok (JAVÍTVA) ---
+app.UseStaticFiles(); // Alap wwwroot elérés
 
-// --- Böngészhető mappa ellenőrzéshez (opcionális) ---
-// Ha nem kell, ezt el is lehet távolítani
-app.UseDirectoryBrowser(new DirectoryBrowserOptions
+// Ez a rész biztosítja, hogy a /Images URL a recipes mappába mutasson
+app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "wwwroot/images")),
-    RequestPath = "/images"
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "images", "recipes")),
+    RequestPath = "/Images"
 });
 
-// --- HTTPS ---
 app.UseHttpsRedirection();
-
-// --- CORS ---
 app.UseCors("FrontendCorsPolicy");
-
-// --- Auth ---
 app.UseAuthentication();
 app.UseAuthorization();
-
-// --- Controller-ek ---
 app.MapControllers();
 
-// --- SeedData ---
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

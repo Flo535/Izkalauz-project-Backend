@@ -3,6 +3,7 @@ using System;
 using IzKalauzBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IzKalauzBackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260213154406_AddStatusColumnToRecipes")]
+    partial class AddStatusColumnToRecipes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -65,79 +68,6 @@ namespace IzKalauzBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Notes");
-                });
-
-            modelBuilder.Entity("IzKalauzBackend.Models.ShoppingList", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AuthorEmail")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ShoppingLists");
-                });
-
-            modelBuilder.Entity("IzKalauzBackend.Models.ShoppingListItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ShoppingListId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShoppingListId");
-
-                    b.ToTable("ShoppingListItems");
-                });
-
-            modelBuilder.Entity("IzKalauzBackend.Models.ShoppingListRecipe", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RecipeId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ShoppingListId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("ShoppingListId");
-
-                    b.ToTable("ShoppingListRecipes");
                 });
 
             modelBuilder.Entity("IzKalauzBackend.Models.User", b =>
@@ -251,36 +181,6 @@ namespace IzKalauzBackend.Migrations
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("IzKalauzBackend.Models.ShoppingListItem", b =>
-                {
-                    b.HasOne("IzKalauzBackend.Models.ShoppingList", "ShoppingList")
-                        .WithMany("Items")
-                        .HasForeignKey("ShoppingListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ShoppingList");
-                });
-
-            modelBuilder.Entity("IzKalauzBackend.Models.ShoppingListRecipe", b =>
-                {
-                    b.HasOne("Recipe", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("IzKalauzBackend.Models.ShoppingList", "ShoppingList")
-                        .WithMany("Recipes")
-                        .HasForeignKey("ShoppingListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("ShoppingList");
-                });
-
             modelBuilder.Entity("IzKalauzBackend.Models.WeeklyMenuItem", b =>
                 {
                     b.HasOne("Recipe", "Dessert")
@@ -302,13 +202,6 @@ namespace IzKalauzBackend.Migrations
                     b.Navigation("MainCourse");
 
                     b.Navigation("Soup");
-                });
-
-            modelBuilder.Entity("IzKalauzBackend.Models.ShoppingList", b =>
-                {
-                    b.Navigation("Items");
-
-                    b.Navigation("Recipes");
                 });
 
             modelBuilder.Entity("Recipe", b =>

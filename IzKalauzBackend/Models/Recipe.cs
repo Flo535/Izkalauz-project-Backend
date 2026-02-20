@@ -11,6 +11,8 @@ public class Recipe
     public string? ImagePath { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public string Status { get; set; } = "Pending"; // default érték
+
 
 
     // EF navigációs property

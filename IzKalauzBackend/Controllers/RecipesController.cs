@@ -109,7 +109,6 @@ namespace IzKalauzBackend.Controllers
                     Ingredients = new List<Ingredient>()
                 };
 
-                // Hozzávalók hozzáadása
                 if (request.Ingredients != null && request.Ingredients.Any())
                 {
                     foreach (var ing in request.Ingredients)
@@ -173,21 +172,17 @@ namespace IzKalauzBackend.Controllers
             if (user == null || (user.Role != "Admin" && recipe.AuthorEmail != email))
                 return Forbid();
 
-            // Alapadatok frissítése
             recipe.Title = updated.Title;
             recipe.Category = updated.Category;
             recipe.Description = updated.Description;
             recipe.HowToText = updated.HowToText;
             recipe.UpdatedAt = DateTime.UtcNow;
 
-            // Hozzávalók törlése az adatbázisból
             var existingIngredients = await _context.Ingredients
                 .Where(i => i.RecipeId == id)
                 .ToListAsync();
-
             _context.Ingredients.RemoveRange(existingIngredients);
 
-            // Új hozzávalók hozzáadása
             if (updated.Ingredients != null && updated.Ingredients.Any())
             {
                 foreach (var ing in updated.Ingredients)
@@ -222,7 +217,6 @@ namespace IzKalauzBackend.Controllers
             if (recipe == null)
                 return NotFound(new { message = "Recept nem található." });
 
-            // Admin minden receptet törölhet, normál user csak a sajátját
             if (user == null || (user.Role != "Admin" && recipe.AuthorEmail != email))
                 return Forbid();
 
@@ -234,15 +228,22 @@ namespace IzKalauzBackend.Controllers
 
         // =========================
         // POST: /api/Recipes/{id}/image
-        // KÉP FELTÖLTÉS ADMINNAK
+        // KÉP FELTÖLTÉS ADMINNAK ÉS SAJÁT RECEPTHEZ USERNEK
         // =========================
         [Authorize]
         [HttpPost("{id:guid}/image")]
         public async Task<IActionResult> UploadRecipeImage(Guid id, IFormFile file)
         {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
             var recipe = await _context.Recipes.FindAsync(id);
             if (recipe == null)
                 return NotFound("Recept nem található.");
+
+            // Admin minden recepthez, user csak a saját receptjéhez
+            if (user == null || (user.Role != "Admin" && recipe.AuthorEmail != email))
+                return Forbid("Csak a saját receptedhez tölthetsz fel képet, vagy légy admin.");
 
             if (file == null || file.Length == 0)
                 return BadRequest("Nincs kiválasztva fájl.");
@@ -266,6 +267,5 @@ namespace IzKalauzBackend.Controllers
 
             return Ok(new { imagePath = recipe.ImagePath });
         }
-
     }
 }
