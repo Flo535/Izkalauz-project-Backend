@@ -20,97 +20,116 @@ namespace IzKalauzBackend.Controllers
             _context = context;
         }
 
-        // GET: api/mynote
-        //Bejelentkezett felhasználó lekéri a saját jegyzetét
+        // Segédmetódus: Biztonságosan kinyeri az email címet a tokenből, többféle formátumot is kezelve
+        private string? GetUserEmail()
+        {
+            return User.FindFirst(ClaimTypes.Email)?.Value
+                ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value
+                ?? User.Claims.FirstOrDefault(c => c.Type.Contains("email"))?.Value;
+        }
+
+        // ==========================================
+        // GET: api/Notes/mine
+        // Jegyzet lekérése vagy üres létrehozása
+        // ==========================================
         [HttpGet("mine")]
         public async Task<IActionResult> GetMyNote()
         {
-            //User emailcím kiolvasása JWT tokenből
-            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
+            try
             {
-                return Unauthorized("A token nem tartalmaz email címet!");
-            }
-
-            // Felhasználóhoz tartozó jegyzet email alapján
-            var note = await _context.Notes
-                .FirstOrDefaultAsync(n => n.AuthorEmail == userEmail);
-            if (note == null)
-            {
-                // Jegyzet létrehozása, ha még nincs
-                note = new Note
+                var userEmail = GetUserEmail();
+                if (string.IsNullOrEmpty(userEmail))
                 {
-                    Id = Guid.NewGuid(),
-                    AuthorEmail = userEmail,
-                    Text = string.Empty
-                };
-                _context.Notes.Add(note);
-                await _context.SaveChangesAsync();
-            }
+                    return Unauthorized(new { message = "A token nem tartalmaz érvényes email címet!" });
+                }
 
-            return Ok(note);
+                var note = await _context.Notes
+                    .FirstOrDefaultAsync(n => n.AuthorEmail == userEmail);
+
+                // Ha még nincs jegyzete az adatbázisban, létrehozunk egy alapértelmezettet
+                if (note == null)
+                {
+                    note = new Note
+                    {
+                        Id = Guid.NewGuid(),
+                        AuthorEmail = userEmail,
+                        Text = string.Empty,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    _context.Notes.Add(note);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(note);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Hiba a lekérés során", error = ex.Message });
+            }
         }
 
-
-        // PUT: api/mynote
+        // ==========================================
+        // PUT: api/Notes/mine
+        // Jegyzet mentése / frissítése
+        // ==========================================
         [HttpPut("mine")]
-        public async Task<IActionResult> UpdateMyNote(NoteDto dto)
+        public async Task<IActionResult> UpdateMyNote([FromBody] NoteDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            //User emailcím kiolvasása JWT tokenből
-            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
+            try
             {
-                return Unauthorized("A token nem tartalmaz érvényes email címet!");
-            }
+                var userEmail = GetUserEmail();
+                if (string.IsNullOrEmpty(userEmail)) return Unauthorized();
 
-            // Felhasználóhoz tartozó jegyzet email alapján
-            var note = await _context.Notes
-                .FirstOrDefaultAsync(n => n.AuthorEmail == userEmail);
-            if (note == null)
+                // Megkeressük a meglévő jegyzetet az egyedi email alapján
+                var note = await _context.Notes
+                    .FirstOrDefaultAsync(n => n.AuthorEmail == userEmail);
+
+                if (note == null)
+                {
+                    // Ha valamiért nem létezett volna (pl. manuális törlés után), létrehozzuk
+                    note = new Note
+                    {
+                        Id = Guid.NewGuid(),
+                        AuthorEmail = userEmail,
+                        Text = dto.Text ?? string.Empty,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    _context.Notes.Add(note);
+                }
+                else
+                {
+                    // Frissítjük a szöveget és az időpontot
+                    // A limitet a NoteDto [StringLength] attribútuma és a Note modell [MaxLength]-je is védi
+                    note.Text = dto.Text ?? string.Empty;
+                    note.UpdatedAt = DateTime.UtcNow;
+
+                    _context.Entry(note).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(note);
+            }
+            catch (DbUpdateException)
             {
-                return NotFound("Nem található jegyzet ehhez a felhasználóhoz!");
+                return StatusCode(500, new { message = "Adatbázis hiba: Az email címnek egyedinek kell lennie." });
             }
-
-            // Jegyzet frissítése
-            note.Text = dto.Text;
-            await _context.SaveChangesAsync();
-            return Ok(note);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Szerver hiba a mentés során", error = ex.Message });
+            }
         }
 
-        // GET api/allnotes
-        // Adminoknak! Összes jegyzet lekérdezése
-        [Authorize(Roles  = "Admin")]
+        // ==========================================
+        // ADMIN FUNKCIÓ: Összes jegyzet megtekintése
+        // ==========================================
+        [Authorize(Roles = "Admin")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllNotes()
         {
-            var notes = await _context.Notes
-                .Select(n => new AdminAllNotesDto
-                {
-                    AuthorEmail = n.AuthorEmail,
-                    Text = n.Text
-                })
-                .ToListAsync();
-
+            var notes = await _context.Notes.ToListAsync();
             return Ok(notes);
-        }
-
-        // GET api/note/id
-        [Authorize(Roles = "Admin")]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetNote(Guid id)
-        {
-            var item = await _context.Notes.FindAsync(id);
-            if (item == null)
-            {
-                return NotFound("Az elem nem létezik!");
-            }
-
-            return Ok(item);
         }
     }
 }

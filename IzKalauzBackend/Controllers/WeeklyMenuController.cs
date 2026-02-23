@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using IzKalauzBackend.Data;
 using IzKalauzBackend.DTOs;
@@ -22,50 +25,80 @@ namespace IzKalauzBackend.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/weeklymenu      (bárki láthatja)
+        // ==========================================
+        // GET: api/WeeklyMenu (BÁRKI láthatja)
+        // ==========================================
         [HttpGet]
-        [AllowAnonymous] // <<--- EZ A FONTOS! Engedélyezi anonímnak is
+        [AllowAnonymous] // Biztosítja, hogy bejelentkezés nélkül is menjen
         public async Task<ActionResult<IEnumerable<WeeklyMenuDto>>> GetWeeklyMenu()
         {
-            var items = await _context.WeeklyMenuItems
-                .Include(w => w.Soup)
-                .Include(w => w.MainCourse)
-                .Include(w => w.Dessert)
-                .OrderBy(w => w.DayOfWeek)
-                .ToListAsync();
+            try
+            {
+                var items = await _context.WeeklyMenuItems
+                    .Include(w => w.Soup)
+                    .Include(w => w.MainCourse)
+                    .Include(w => w.Dessert)
+                    .OrderBy(w => w.DayOfWeek)
+                    .ToListAsync();
 
-            var dtos = _mapper.Map<List<WeeklyMenuDto>>(items);
-            return Ok(dtos);
+                if (items == null) return Ok(new List<WeeklyMenuDto>());
+
+                var dtos = _mapper.Map<List<WeeklyMenuDto>>(items);
+                return Ok(dtos);
+            }
+            catch (Exception ex)
+            {
+                // Ha 500-as hiba van, itt kiírja a pontos okot a konzolra
+                return StatusCode(500, $"Belső szerverhiba: {ex.Message}");
+            }
         }
 
-        // POST: api/weeklymenu     (csak Admin)
+        // ==========================================
+        // POST: api/WeeklyMenu (Csak ADMIN)
+        // ==========================================
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<WeeklyMenuDto>> CreateWeeklyMenuItem(CreateWeeklyMenuItemDto dto)
         {
-            // Ellenőrzés, hogy az adott napra már van-e
-            if (_context.WeeklyMenuItems.Any(w => w.DayOfWeek == (DayOfWeek)dto.DayOfWeek))
-                return BadRequest("Erre a napra már van létrehozott menü.");
-
-            var item = new WeeklyMenuItem
+            try
             {
-                DayOfWeek = (DayOfWeek)dto.DayOfWeek,
-                SoupId = dto.SoupId,
-                MainCourseId = dto.MainCourseId,
-                DessertId = dto.DessertId
-            };
+                // Ellenőrzés, hogy az adott napra már van-e menü
+                var existing = await _context.WeeklyMenuItems
+                    .AnyAsync(w => w.DayOfWeek == (DayOfWeek)dto.DayOfWeek);
 
-            _context.WeeklyMenuItems.Add(item);
-            await _context.SaveChangesAsync();
+                if (existing)
+                    return BadRequest("Erre a napra már van létrehozott menü.");
 
-            var result = await _context.WeeklyMenuItems
-                .Include(w => w.Soup).Include(w => w.MainCourse).Include(w => w.Dessert)
-                .FirstAsync(w => w.Id == item.Id);
+                var item = new WeeklyMenuItem
+                {
+                    Id = Guid.NewGuid(),
+                    DayOfWeek = (DayOfWeek)dto.DayOfWeek,
+                    SoupId = dto.SoupId,
+                    MainCourseId = dto.MainCourseId,
+                    DessertId = dto.DessertId
+                };
 
-            return CreatedAtAction(nameof(GetWeeklyMenu), _mapper.Map<WeeklyMenuDto>(result));
+                _context.WeeklyMenuItems.Add(item);
+                await _context.SaveChangesAsync();
+
+                // Újra lekérjük az Include-olt adatokkal a válaszhoz
+                var result = await _context.WeeklyMenuItems
+                    .Include(w => w.Soup)
+                    .Include(w => w.MainCourse)
+                    .Include(w => w.Dessert)
+                    .FirstOrDefaultAsync(w => w.Id == item.Id);
+
+                return CreatedAtAction(nameof(GetWeeklyMenu), _mapper.Map<WeeklyMenuDto>(result));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Hiba a mentés során: {ex.Message}");
+            }
         }
 
-        // DELETE: api/weeklymenu/5 → csak Admin
+        // ==========================================
+        // DELETE: api/WeeklyMenu/{id} (Csak ADMIN)
+        // ==========================================
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteWeeklyMenuItem(Guid id)

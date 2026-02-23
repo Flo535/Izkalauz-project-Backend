@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// --- CORS ---
+// --- CORS (Optimalizálva) ---
 var frontendUrl = "http://localhost:5175";
 builder.Services.AddCors(options =>
 {
@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials(); // Fontos az Auth miatt
     });
 });
 
@@ -90,23 +90,28 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// --- Statikus fájlok (JAVÍTVA) ---
-app.UseStaticFiles(); // Alap wwwroot elérés
+// --- CORS alkalmazása (Jó helyen van!) ---
+app.UseCors("FrontendCorsPolicy");
 
-// Ez a rész biztosítja, hogy a /Images URL a recipes mappába mutasson
+// --- Statikus fájlok kiszolgálása ---
+app.UseStaticFiles(); // Alap wwwroot (pl. images/recipes/kep.jpg elérhető lesz így)
+
+// Ez a rész segít, ha a Frontend simán a "/Images/valami.jpg" címen keresi a képeket
+var recipesPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "images", "recipes");
+if (!Directory.Exists(recipesPath)) Directory.CreateDirectory(recipesPath);
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "images", "recipes")),
+    FileProvider = new PhysicalFileProvider(recipesPath),
     RequestPath = "/Images"
 });
 
 app.UseHttpsRedirection();
-app.UseCors("FrontendCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// --- Seed Data ---
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
