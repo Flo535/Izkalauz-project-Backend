@@ -1,20 +1,41 @@
-﻿using IzKalauzBackend.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-public class Recipe
+namespace IzKalauzBackend.Models
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public string Title { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string HowToText { get; set; } = string.Empty;
-    public string AuthorEmail { get; set; } = string.Empty;
-    public string? ImagePath { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public string Status { get; set; } = "Pending"; // default érték
+    public class Recipe
+    {
+        [Key]
+        public Guid Id { get; set; }
 
+        [Required]
+        [MaxLength(100)]
+        public string Title { get; set; } = string.Empty;
 
+        [Required]
+        public string Category { get; set; } = string.Empty;
 
-    // EF navigációs property
-    public List<Ingredient> Ingredients { get; set; } = new();
+        [Required]
+        public string Description { get; set; } = string.Empty;
+
+        [Required]
+        public string HowToText { get; set; } = string.Empty;
+
+        public string? ImagePath { get; set; }
+
+        // Dani 5. pontja: A beküldött recept alapból nem jóváhagyott (false)
+        public bool IsApproved { get; set; } = false;
+
+        // Jogosultságkezelés: Ki a recept tulajdonosa?
+        [Required]
+        public string AuthorEmail { get; set; } = string.Empty;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Kapcsolat a hozzávalókkal
+        public virtual ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
+    }
 }
