@@ -9,33 +9,25 @@ namespace IzKalauzBackend.Models
         [Key]
         public Guid Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "A cím kötelező!")]
         [MaxLength(100)]
         public string Title { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "A kategória kötelező!")]
         public string Category { get; set; } = string.Empty;
 
-        [Required]
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public string HowToText { get; set; } = string.Empty;
-
+        public string? Description { get; set; }
+        public string? HowToText { get; set; }
         public string? ImagePath { get; set; }
 
-        // Dani 5. pontja: A beküldött recept alapból nem jóváhagyott (false)
         public bool IsApproved { get; set; } = false;
 
-        // Jogosultságkezelés: Ki a recept tulajdonosa?
-        [Required]
+        // Kivettük a Required attribútumot, a kontroller tölti ki
         public string AuthorEmail { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Kapcsolat a hozzávalókkal
         public virtual ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
     }
 }

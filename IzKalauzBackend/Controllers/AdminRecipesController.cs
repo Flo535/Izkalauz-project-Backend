@@ -18,65 +18,52 @@ namespace IzKalauzBackend.Controllers
             _context = context;
         }
 
-        // --- Admin listáz minden receptet ---
-        [HttpGet]
-        public async Task<IActionResult> GetAllRecipes()
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPending()
         {
-            var recipes = await _context.Recipes
-                .Select(r => new
-                {
-                    r.Id,
-                    r.Title,
-                    // A bool IsApproved értékéből szöveges státuszt generálunk a Frontendnek
-                    Status = r.IsApproved ? "Approved" : "Pending",
-                    r.AuthorEmail,
-                    r.ImagePath
-                })
-                .ToListAsync();
+            try
+            {
+                // Szigorú szűrés: IsApproved értéke pontosan false
+                var pending = await _context.Recipes
+                    .Include(r => r.Ingredients)
+                    .Where(r => r.IsApproved == false)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
 
-            return Ok(recipes);
+                return Ok(pending);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // --- Admin módosítja a státuszt ---
-        [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateRecipeStatus(Guid id, [FromBody] string status)
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            var recipe = await _context.Recipes.FindAsync(id);
-            if (recipe == null)
-                return NotFound("Recept nem található");
+            var all = await _context.Recipes
+                .Include(r => r.Ingredients)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+            return Ok(all);
+        }
 
-            // Ellenőrizzük a beérkező szöveget és beállítjuk az IsApproved értékét
-            if (status == "Approved")
-            {
-                recipe.IsApproved = true;
-            }
-            else if (status == "Pending")
-            {
-                recipe.IsApproved = false;
-            }
-            else if (status == "Rejected")
-            {
-                // Ha elutasítjuk, nálunk az a törlést jelenti, vagy maradjon Pending?
-                // Itt most csak simán false-ra állítjuk, de törölheted is a receptet:
-                // _context.Recipes.Remove(recipe); 
-                recipe.IsApproved = false;
-            }
-            else
-            {
-                return BadRequest("Érvénytelen státusz: Pending, Approved, vagy Rejected kell legyen.");
-            }
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] StatusUpdateDto dto)
+        {
+            var recipe = await _context.Recipes.FirstOrDefaultAsync(r => r.Id == id);
+            if (recipe == null) return NotFound();
 
+            recipe.IsApproved = dto.IsApproved;
             recipe.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
-            // Visszaadjuk az eredményt a Frontendnek a várt formátumban
-            return Ok(new
-            {
-                recipe.Id,
-                recipe.Title,
-                Status = recipe.IsApproved ? "Approved" : "Pending"
-            });
+            return Ok(new { message = "Státusz frissítve!" });
         }
+    }
+
+    public class StatusUpdateDto
+    {
+        public bool IsApproved { get; set; }
     }
 }
