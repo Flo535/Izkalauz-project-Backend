@@ -1,18 +1,19 @@
-# Visual Studio ideiglenes fájlok
+# Visual Studio
 .vs/
-bin/
-obj/
+[Bb]in/
+[Oo]bj/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# Node/npm fájlok
+# Node / Vue
 node_modules/
+dist/
 package-lock.json
+npm-debug.log*
 
-# Egyéb lokális fájlok
-*.log
-.vs/
-bin/
-obj/
-*.user
-*.suo
+# Operációs rendszer fájlok
+Thumbs.db
+desktop.ini
+.DS_Store
