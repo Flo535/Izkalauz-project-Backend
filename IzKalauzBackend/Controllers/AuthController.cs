@@ -23,7 +23,6 @@ namespace IzKalauzBackend.Controllers
             _config = config;
         }
 
-        // POST: /api/Auth/Register
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
         {
@@ -40,23 +39,20 @@ namespace IzKalauzBackend.Controllers
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Sikeres regisztráció." });
         }
 
-        // POST: /api/Auth/Login
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-                return Unauthorized(new { message = "Invalid email or password." });
+                return Unauthorized(new { message = "Helytelen email vagy jelszó." });
 
             var token = GenerateJwtToken(user);
             return Ok(new { token });
         }
 
-        // POST: /api/Auth/RegisterAdmin (csak adminok hívhatják)
         [HttpPost("RegisterAdmin")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] UserRegisterRequest request)
@@ -74,7 +70,6 @@ namespace IzKalauzBackend.Controllers
 
             _context.Users.Add(admin);
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Új admin felhasználó létrehozva." });
         }
 
@@ -84,10 +79,12 @@ namespace IzKalauzBackend.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            // Itt változtattunk! Rövid neveket (role, email) használunk a JWT szabvány szerint
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Email),
+                new Claim("role", user.Role) // Ez a kulcs a lényeg!
             };
 
             var token = new JwtSecurityToken(
@@ -99,7 +96,6 @@ namespace IzKalauzBackend.Controllers
         }
     }
 
-    // DTO-k
     public class UserRegisterRequest
     {
         public string Email { get; set; } = string.Empty;

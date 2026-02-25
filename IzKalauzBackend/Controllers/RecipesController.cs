@@ -1,271 +1,155 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using IzKalauzBackend.Data;
 using IzKalauzBackend.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace IzKalauzBackend.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class RecipesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public RecipesController(AppDbContext context)
+        public RecipesController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
-        // =========================
-        // GET: /api/Recipes?page=1&pageSize=10
-        // ÖSSZES RECEPT (LAPOZOTT)
-        // =========================
+        // GET: api/Recipes
         [HttpGet]
-        public async Task<IActionResult> GetAllRecipes(int page = 1, int pageSize = 8)
+        public async Task<IActionResult> GetRecipes(int page = 1, int pageSize = 8)
         {
-            try
-            {
-                var query = _context.Recipes
-                    .Include(r => r.Ingredients)
-                    .OrderByDescending(r => r.CreatedAt);
-                var totalCount = await query.CountAsync();
-                var recipes = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var query = _context.Recipes.AsNoTracking();
 
-                return Ok(new { items = recipes, totalCount });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Hiba történt a receptek lekérésekor.", error = ex.Message });
-            }
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(r => r.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new { items, totalCount });
         }
 
-        // ==================================
-        // GET: /api/Recipes/my?page=1&pageSize=10
-        // SAJÁT RECEPTEK (LAPOZOTT)
-        // ==================================
+        // GET: api/Recipes/my
         [HttpGet("my")]
         [Authorize]
-        public async Task<IActionResult> GetMyRecipes(int page = 1, int pageSize = 8)
+        public async Task<IActionResult> GetMyRecipes()
         {
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            if (string.IsNullOrEmpty(email))
-                return Unauthorized(new { message = "A token nem tartalmaz érvényes emailt." });
+            var email = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(email)) return Unauthorized();
 
-            try
-            {
-                var query = _context.Recipes
-                    .Include(r => r.Ingredients)
-                    .Where(r => r.AuthorEmail == email)
-                    .OrderByDescending(r => r.CreatedAt);
+            var items = await _context.Recipes
+                .Where(r => r.AuthorEmail == email)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
 
-                var totalCount = await query.CountAsync();
-                var myRecipes = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-
-                return Ok(new { items = myRecipes, totalCount });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Hiba történt a saját receptek lekérésekor.", error = ex.Message });
-            }
+            return Ok(new { items, totalCount = items.Count });
         }
 
-        // =========================
-        // POST: /api/Recipes
-        // =========================
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> CreateRecipe([FromBody] Recipe request)
-        {
-            try
-            {
-                if (request == null || string.IsNullOrWhiteSpace(request.Title))
-                    return BadRequest(new { message = "A recept címe kötelező." });
-
-                if (string.IsNullOrWhiteSpace(request.Category))
-                    return BadRequest(new { message = "A kategória kötelező." });
-
-                if (string.IsNullOrWhiteSpace(request.Description))
-                    return BadRequest(new { message = "A leírás kötelező." });
-
-                if (string.IsNullOrWhiteSpace(request.HowToText))
-                    return BadRequest(new { message = "Az elkészítés menete kötelező." });
-
-                var email = User.FindFirstValue(ClaimTypes.Email);
-                if (string.IsNullOrEmpty(email))
-                    return Unauthorized(new { message = "A token nem tartalmaz érvényes emailt." });
-
-                var recipe = new Recipe
-                {
-                    Id = Guid.NewGuid(),
-                    Title = request.Title,
-                    Category = request.Category,
-                    Description = request.Description,
-                    HowToText = request.HowToText,
-                    AuthorEmail = email,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    Ingredients = new List<Ingredient>()
-                };
-
-                if (request.Ingredients != null && request.Ingredients.Any())
-                {
-                    foreach (var ing in request.Ingredients)
-                    {
-                        recipe.Ingredients.Add(new Ingredient
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = ing.Name,
-                            Quantity = ing.Quantity,
-                            Unit = ing.Unit,
-                            RecipeId = recipe.Id
-                        });
-                    }
-                }
-
-                _context.Recipes.Add(recipe);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Recept sikeresen létrehozva.", recipe });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    message = "Hiba történt a recept létrehozásakor.",
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
-        }
-
-        // =========================
-        // GET: /api/Recipes/{id}
-        // =========================
-        [HttpGet("{id:guid}")]
+        // GET: api/Recipes/{id}
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetRecipe(Guid id)
         {
             var recipe = await _context.Recipes
                 .Include(r => r.Ingredients)
                 .FirstOrDefaultAsync(r => r.Id == id);
-            if (recipe == null)
-                return NotFound(new { message = "Recept nem található." });
 
+            if (recipe == null) return NotFound();
             return Ok(recipe);
         }
 
+        // PUT: api/Recipes/{id} - SZERKESZTÉS (Admin hatalommal)
+        [HttpPut("{id}")]
         [Authorize]
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateRecipe(Guid id, [FromBody] Recipe updated)
+        public async Task<IActionResult> PutRecipe(Guid id, [FromBody] Recipe updatedRecipe)
         {
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var recipe = await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.Id == id);
+            if (recipe == null) return NotFound();
 
-            var recipe = await _context.Recipes
-                .Include(r => r.Ingredients)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
 
-            if (recipe == null)
-                return NotFound(new { message = "Recept nem található." });
+            // Ha nem a szerző és nem admin, tiltjuk
+            if (recipe.AuthorEmail != userEmail && !isAdmin) return Forbid();
 
-            if (user == null || (user.Role != "Admin" && recipe.AuthorEmail != email))
-                return Forbid();
-
-            recipe.Title = updated.Title;
-            recipe.Category = updated.Category;
-            recipe.Description = updated.Description;
-            recipe.HowToText = updated.HowToText;
+            // Mezők frissítése a te Recipe.cs fájlod alapján
+            recipe.Title = updatedRecipe.Title;
+            recipe.Category = updatedRecipe.Category;
+            recipe.Description = updatedRecipe.Description;
+            recipe.HowToText = updatedRecipe.HowToText;
+            recipe.IsApproved = updatedRecipe.IsApproved;
             recipe.UpdatedAt = DateTime.UtcNow;
 
-            var existingIngredients = await _context.Ingredients
-                .Where(i => i.RecipeId == id)
-                .ToListAsync();
-            _context.Ingredients.RemoveRange(existingIngredients);
-
-            if (updated.Ingredients != null && updated.Ingredients.Any())
-            {
-                foreach (var ing in updated.Ingredients)
-                {
-                    _context.Ingredients.Add(new Ingredient
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = ing.Name,
-                        Quantity = ing.Quantity,
-                        Unit = ing.Unit,
-                        RecipeId = recipe.Id
-                    });
-                }
-            }
-
             await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Recept sikeresen frissítve.", recipe });
+            return NoContent();
         }
 
-        // =========================
-        // DELETE: /api/Recipes/{id}
-        // =========================
+        // POST: api/Recipes/{id}/image - KÉPFELTÖLTÉS (Admin hatalommal)
+        [HttpPost("{id}/image")]
         [Authorize]
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteRecipe(Guid id)
+        public async Task<IActionResult> UploadImage(Guid id, IFormFile file)
         {
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             var recipe = await _context.Recipes.FindAsync(id);
+            if (recipe == null) return NotFound("A recept nem található.");
 
-            if (recipe == null)
-                return NotFound(new { message = "Recept nem található." });
+            var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
 
-            if (user == null || (user.Role != "Admin" && recipe.AuthorEmail != email))
-                return Forbid();
+            if (recipe.AuthorEmail != userEmail && !isAdmin) return Forbid();
+            if (file == null || file.Length == 0) return BadRequest("Érvénytelen fájl.");
 
-            _context.Recipes.Remove(recipe);
-            await _context.SaveChangesAsync();
+            string folderName = Path.Combine("images", "recipes");
+            string fullPath = Path.Combine(_env.WebRootPath, folderName);
 
-            return Ok(new { message = "Recept törölve." });
-        }
+            if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
 
-        // =========================
-        // POST: /api/Recipes/{id}/image
-        // KÉP FELTÖLTÉS ADMINNAK ÉS SAJÁT RECEPTHEZ USERNEK
-        // =========================
-        [Authorize]
-        [HttpPost("{id:guid}/image")]
-        public async Task<IActionResult> UploadRecipeImage(Guid id, IFormFile file)
-        {
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-
-            var recipe = await _context.Recipes.FindAsync(id);
-            if (recipe == null)
-                return NotFound("Recept nem található.");
-
-            // Admin minden recepthez, user csak a saját receptjéhez
-            if (user == null || (user.Role != "Admin" && recipe.AuthorEmail != email))
-                return Forbid("Csak a saját receptedhez tölthetsz fel képet, vagy légy admin.");
-
-            if (file == null || file.Length == 0)
-                return BadRequest("Nincs kiválasztva fájl.");
-
-            var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "recipes");
-            if (!Directory.Exists(uploadDir))
-                Directory.CreateDirectory(uploadDir);
-
-            var fileExt = Path.GetExtension(file.FileName);
-            var fileName = $"{id}_{DateTime.Now.Ticks}{fileExt}";
-            var filePath = Path.Combine(uploadDir, fileName);
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.Combine(fullPath, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            recipe.ImagePath = Path.Combine("images", "recipes", fileName).Replace("\\", "/");
-            _context.Recipes.Update(recipe);
+            if (!string.IsNullOrEmpty(recipe.ImagePath) && !recipe.ImagePath.Contains("default.jpg"))
+            {
+                string oldFileName = Path.GetFileName(recipe.ImagePath);
+                string oldFilePath = Path.Combine(fullPath, oldFileName);
+                if (System.IO.File.Exists(oldFilePath))
+                {
+                    try { System.IO.File.Delete(oldFilePath); } catch { }
+                }
+            }
+
+            recipe.ImagePath = fileName;
             await _context.SaveChangesAsync();
 
-            return Ok(new { imagePath = recipe.ImagePath });
+            return Ok(new { imagePath = fileName });
+        }
+
+        // DELETE: api/Recipes/{id} - TÖRLÉS (Admin hatalommal)
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteRecipe(Guid id)
+        {
+            var recipe = await _context.Recipes.FindAsync(id);
+            if (recipe == null) return NotFound();
+
+            var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
+            if (recipe.AuthorEmail != userEmail && !isAdmin) return Forbid();
+
+            _context.Recipes.Remove(recipe);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

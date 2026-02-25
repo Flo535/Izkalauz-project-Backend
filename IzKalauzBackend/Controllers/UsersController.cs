@@ -3,12 +3,13 @@ using IzKalauzBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace IzKalauzBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")] // Csak Admin érheti el az egész kontrollert
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,21 +19,19 @@ namespace IzKalauzBackend.Controllers
             _context = context;
         }
 
-        // DTO a felhasználói adatokhoz (jelszó nélkül)
         public class UserDto
         {
             public Guid Id { get; set; }
             public string Email { get; set; } = null!;
             public string Role { get; set; } = "User";
+            public int RecipeCount { get; set; }
         }
 
-        // DTO a szerepkör frissítéséhez
         public class UpdateRoleDto
         {
             public string Role { get; set; } = "User";
         }
 
-        // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
@@ -41,33 +40,28 @@ namespace IzKalauzBackend.Controllers
                 {
                     Id = u.Id,
                     Email = u.Email,
-                    Role = u.Role
+                    Role = u.Role,
+                    RecipeCount = _context.Recipes.Count(r => r.AuthorEmail == u.Email)
                 })
                 .ToListAsync();
 
             return Ok(users);
         }
 
-        // GET: api/Users/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> GetUser(Guid id)
+        [HttpPut("{id}/role")]
+        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateRoleDto dto)
         {
-            var user = await _context.Users
-                .Where(u => u.Id == id)
-                .Select(u => new UserDto
-                {
-                    Id = u.Id,
-                    Email = u.Email,
-                    Role = u.Role
-                })
-                .FirstOrDefaultAsync();
-
+            var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
-            return Ok(user);
+            if (dto.Role != "User" && dto.Role != "Admin")
+                return BadRequest("A szerepkör csak 'User' vagy 'Admin' lehet.");
+
+            user.Role = dto.Role;
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-        // DELETE: api/Users/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
@@ -76,23 +70,6 @@ namespace IzKalauzBackend.Controllers
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // PUT: api/Users/{id}/role
-        [HttpPut("{id}/role")]
-        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] UpdateRoleDto dto)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound();
-
-            if (dto.Role != "User" && dto.Role != "Admin")
-                return BadRequest("Role must be 'User' or 'Admin'.");
-
-            user.Role = dto.Role;
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }

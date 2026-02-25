@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IzKalauzBackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260223115224_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260223142921_InitialFullCreate")]
+    partial class InitialFullCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -71,6 +71,54 @@ namespace IzKalauzBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Notes");
+                });
+
+            modelBuilder.Entity("IzKalauzBackend.Models.Recipe", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("HowToText")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Recipes");
                 });
 
             modelBuilder.Entity("IzKalauzBackend.Models.ShoppingList", b =>
@@ -198,57 +246,9 @@ namespace IzKalauzBackend.Migrations
                     b.ToTable("WeeklyMenuItems");
                 });
 
-            modelBuilder.Entity("Recipe", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AuthorEmail")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("HowToText")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Recipes");
-                });
-
             modelBuilder.Entity("IzKalauzBackend.Models.Ingredient", b =>
                 {
-                    b.HasOne("Recipe", "Recipe")
+                    b.HasOne("IzKalauzBackend.Models.Recipe", "Recipe")
                         .WithMany("Ingredients")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -270,7 +270,7 @@ namespace IzKalauzBackend.Migrations
 
             modelBuilder.Entity("IzKalauzBackend.Models.ShoppingListRecipe", b =>
                 {
-                    b.HasOne("Recipe", "Recipe")
+                    b.HasOne("IzKalauzBackend.Models.Recipe", "Recipe")
                         .WithMany()
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -289,17 +289,17 @@ namespace IzKalauzBackend.Migrations
 
             modelBuilder.Entity("IzKalauzBackend.Models.WeeklyMenuItem", b =>
                 {
-                    b.HasOne("Recipe", "Dessert")
+                    b.HasOne("IzKalauzBackend.Models.Recipe", "Dessert")
                         .WithMany()
                         .HasForeignKey("DessertId");
 
-                    b.HasOne("Recipe", "MainCourse")
+                    b.HasOne("IzKalauzBackend.Models.Recipe", "MainCourse")
                         .WithMany()
                         .HasForeignKey("MainCourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Recipe", "Soup")
+                    b.HasOne("IzKalauzBackend.Models.Recipe", "Soup")
                         .WithMany()
                         .HasForeignKey("SoupId");
 
@@ -310,16 +310,16 @@ namespace IzKalauzBackend.Migrations
                     b.Navigation("Soup");
                 });
 
+            modelBuilder.Entity("IzKalauzBackend.Models.Recipe", b =>
+                {
+                    b.Navigation("Ingredients");
+                });
+
             modelBuilder.Entity("IzKalauzBackend.Models.ShoppingList", b =>
                 {
                     b.Navigation("Items");
 
                     b.Navigation("Recipes");
-                });
-
-            modelBuilder.Entity("Recipe", b =>
-                {
-                    b.Navigation("Ingredients");
                 });
 #pragma warning restore 612, 618
         }

@@ -25,15 +25,13 @@ namespace IzKalauzBackend.Controllers
             _mapper = mapper;
         }
 
-        // ==========================================
-        // GET: api/WeeklyMenu (BÁRKI láthatja)
-        // ==========================================
         [HttpGet]
-        [AllowAnonymous] // Biztosítja, hogy bejelentkezés nélkül is menjen
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<WeeklyMenuDto>>> GetWeeklyMenu()
         {
             try
             {
+                // Itt dől el minden: Fontos az Include, hogy ne legyen null a válasz!
                 var items = await _context.WeeklyMenuItems
                     .Include(w => w.Soup)
                     .Include(w => w.MainCourse)
@@ -41,34 +39,36 @@ namespace IzKalauzBackend.Controllers
                     .OrderBy(w => w.DayOfWeek)
                     .ToListAsync();
 
-                if (items == null) return Ok(new List<WeeklyMenuDto>());
+                // Ha üres, ne hibát dobjon, hanem üres listát
+                if (items == null || !items.Any())
+                    return Ok(new List<WeeklyMenuDto>());
 
                 var dtos = _mapper.Map<List<WeeklyMenuDto>>(items);
                 return Ok(dtos);
             }
             catch (Exception ex)
             {
-                // Ha 500-as hiba van, itt kiírja a pontos okot a konzolra
-                return StatusCode(500, $"Belső szerverhiba: {ex.Message}");
+                // Logold a belső hiba részleteit is!
+                return StatusCode(500, $"Belső szerverhiba: {ex.Message} -> {ex.InnerException?.Message}");
             }
         }
 
-        // ==========================================
-        // POST: api/WeeklyMenu (Csak ADMIN)
-        // ==========================================
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<WeeklyMenuDto>> CreateWeeklyMenuItem(CreateWeeklyMenuItemDto dto)
         {
             try
             {
-                // Ellenőrzés, hogy az adott napra már van-e menü
+                // 1. Töröljük a régi menüt arra a napra, ha már létezik (Felülírás logika)
                 var existing = await _context.WeeklyMenuItems
-                    .AnyAsync(w => w.DayOfWeek == (DayOfWeek)dto.DayOfWeek);
+                    .FirstOrDefaultAsync(w => w.DayOfWeek == (DayOfWeek)dto.DayOfWeek);
 
-                if (existing)
-                    return BadRequest("Erre a napra már van létrehozott menü.");
+                if (existing != null)
+                {
+                    _context.WeeklyMenuItems.Remove(existing);
+                }
 
+                // 2. Új elem létrehozása
                 var item = new WeeklyMenuItem
                 {
                     Id = Guid.NewGuid(),
@@ -81,14 +81,14 @@ namespace IzKalauzBackend.Controllers
                 _context.WeeklyMenuItems.Add(item);
                 await _context.SaveChangesAsync();
 
-                // Újra lekérjük az Include-olt adatokkal a válaszhoz
+                // 3. Visszaadjuk a teljes objektumot a nevekkel együtt
                 var result = await _context.WeeklyMenuItems
                     .Include(w => w.Soup)
                     .Include(w => w.MainCourse)
                     .Include(w => w.Dessert)
                     .FirstOrDefaultAsync(w => w.Id == item.Id);
 
-                return CreatedAtAction(nameof(GetWeeklyMenu), _mapper.Map<WeeklyMenuDto>(result));
+                return Ok(_mapper.Map<WeeklyMenuDto>(result));
             }
             catch (Exception ex)
             {
@@ -96,19 +96,15 @@ namespace IzKalauzBackend.Controllers
             }
         }
 
-        // ==========================================
-        // DELETE: api/WeeklyMenu/{id} (Csak ADMIN)
-        // ==========================================
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteWeeklyMenuItem(Guid id)
         {
             var item = await _context.WeeklyMenuItems.FindAsync(id);
-            if (item == null) return NotFound("Az elem nem létezik!");
+            if (item == null) return NotFound();
 
             _context.WeeklyMenuItems.Remove(item);
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }

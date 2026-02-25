@@ -27,7 +27,8 @@ namespace IzKalauzBackend.Controllers
                 {
                     r.Id,
                     r.Title,
-                    r.Status,
+                    // A bool IsApproved értékéből szöveges státuszt generálunk a Frontendnek
+                    Status = r.IsApproved ? "Approved" : "Pending",
                     r.AuthorEmail,
                     r.ImagePath
                 })
@@ -44,16 +45,38 @@ namespace IzKalauzBackend.Controllers
             if (recipe == null)
                 return NotFound("Recept nem található");
 
-            // Ellenőrizzük a státusz érvényességét
-            if (status != "Pending" && status != "Approved" && status != "Rejected")
+            // Ellenőrizzük a beérkező szöveget és beállítjuk az IsApproved értékét
+            if (status == "Approved")
+            {
+                recipe.IsApproved = true;
+            }
+            else if (status == "Pending")
+            {
+                recipe.IsApproved = false;
+            }
+            else if (status == "Rejected")
+            {
+                // Ha elutasítjuk, nálunk az a törlést jelenti, vagy maradjon Pending?
+                // Itt most csak simán false-ra állítjuk, de törölheted is a receptet:
+                // _context.Recipes.Remove(recipe); 
+                recipe.IsApproved = false;
+            }
+            else
+            {
                 return BadRequest("Érvénytelen státusz: Pending, Approved, vagy Rejected kell legyen.");
+            }
 
-            recipe.Status = status;
             recipe.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { recipe.Id, recipe.Title, recipe.Status });
+            // Visszaadjuk az eredményt a Frontendnek a várt formátumban
+            return Ok(new
+            {
+                recipe.Id,
+                recipe.Title,
+                Status = recipe.IsApproved ? "Approved" : "Pending"
+            });
         }
     }
 }
