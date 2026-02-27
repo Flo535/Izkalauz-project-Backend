@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=izkalauz.db"));
 
-// --- 2. AutoMapper Regisztráció (EZ HIÁNYZOTT AZ 500-AS HIBÁHOZ!) ---
+// --- 2. AutoMapper Regisztráció ---
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // --- 3. JWT Alapbeállítások ---
@@ -33,14 +33,11 @@ builder.Services.AddAuthentication(options => {
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-
-        // Rugalmasabb név- és szerepkör keresés
         NameClaimType = ClaimTypes.Name,
         RoleClaimType = ClaimTypes.Role
     };
 });
 
-// Ez kényszeríti a .NET-et, hogy a "role" kulcsot is ismerje fel a tokenben
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
@@ -67,7 +64,25 @@ builder.Services.AddSwaggerGen(c => {
 
 var app = builder.Build();
 
-// --- 5. Middleware-ek sorrendje ---
+// --- 5. SEED DATA AUTOMATIKUS FUTTATÁSA INDÍTÁSKOR ---
+// Ez a rész gondoskodik róla, hogy az adatbázis feltöltődjön a receptekkel
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        // Fontos: Mivel a SeedData.InitializeAsync 'async' metódus, megvárjuk a végét
+        await SeedData.InitializeAsync(context);
+        Console.WriteLine("Adatbázis sikeresen inicializálva és feltöltve receptekkel.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"HIBA a SeedData futtatása közben: {ex.Message}");
+    }
+}
+
+// --- 6. Middleware-ek sorrendje ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -76,7 +91,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// CORS beállítása
 app.UseCors(policy => policy
     .AllowAnyOrigin()
     .AllowAnyMethod()
