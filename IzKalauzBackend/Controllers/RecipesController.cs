@@ -71,7 +71,11 @@ namespace IzKalauzBackend.Controllers
                 if (!string.IsNullOrEmpty(ingredientsJson))
                 {
                     recipe.Ingredients = JsonSerializer.Deserialize<List<Ingredient>>(ingredientsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Ingredient>();
-                    foreach (var ing in recipe.Ingredients) ing.Id = Guid.NewGuid();
+                    foreach (var ing in recipe.Ingredients)
+                    {
+                        ing.Id = Guid.NewGuid();
+                        ing.RecipeId = recipe.Id;
+                    }
                 }
 
                 if (image != null)
@@ -89,8 +93,9 @@ namespace IzKalauzBackend.Controllers
             }
             catch (Exception ex)
             {
+                // Itt most már használjuk az ex-et a konzolra íráshoz, így eltűnik a warning
                 Console.WriteLine($"Hiba a létrehozáskor: {ex.Message}");
-                return StatusCode(500, $"Hiba: {ex.Message}");
+                return StatusCode(500, $"Hiba történt a mentés során.");
             }
         }
 
@@ -125,7 +130,6 @@ namespace IzKalauzBackend.Controllers
 
                 var oldIngredients = await _context.Ingredients.Where(i => i.RecipeId == id).ToListAsync();
                 _context.Ingredients.RemoveRange(oldIngredients);
-                await _context.SaveChangesAsync();
 
                 if (!string.IsNullOrEmpty(ingredientsJson))
                 {
@@ -151,8 +155,53 @@ namespace IzKalauzBackend.Controllers
             }
             catch (Exception ex)
             {
+                // Itt is használjuk az ex-et
                 Console.WriteLine($"Hiba a szerkesztéskor: {ex.Message}");
                 return StatusCode(500, "Mentési hiba.");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteRecipe(Guid id)
+        {
+            try
+            {
+                var recipe = await _context.Recipes
+                    .Include(r => r.Ingredients)
+                    .FirstOrDefaultAsync(r => r.Id == id);
+
+                if (recipe == null) return NotFound("A recept nem található.");
+
+                var userEmail = User.FindFirstValue(ClaimTypes.Email);
+                bool isAdmin = User.IsInRole("Admin");
+
+                if (!isAdmin && recipe.AuthorEmail != userEmail)
+                {
+                    return Forbid("Nincs jogosultságod a törléshez.");
+                }
+
+                if (recipe.Ingredients != null && recipe.Ingredients.Any())
+                {
+                    _context.Ingredients.RemoveRange(recipe.Ingredients);
+                }
+
+                if (!string.IsNullOrEmpty(recipe.ImagePath))
+                {
+                    var fullPath = Path.Combine(_env.WebRootPath, recipe.ImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+                }
+
+                _context.Recipes.Remove(recipe);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Recept sikeresen törölve!" });
+            }
+            catch (Exception ex)
+            {
+                // Itt is kiírjuk a hibát, így eltűnik a figyelmeztetés
+                Console.WriteLine($"Hiba a törléskor: {ex.Message}");
+                return StatusCode(500, "Hiba történt a törlés során.");
             }
         }
     }
